@@ -54,9 +54,7 @@ function sendRequest(url) {
 (async () => {
   let page = 1;
 
-  const results = [];
-
-  while(page <= 1) {
+  while(page <= 14452) {
     let url = `https://infodoanhnghiep.com/Ha-Noi/trang-${page}/`;
     let body = await sendRequest(url);
     let $ = cheerio.load(body);
@@ -68,17 +66,24 @@ function sendRequest(url) {
       let detail = {};
       let body = await sendRequest(`https:${detailUrl}`);
       let $ = cheerio.load(body);
+      let sdt = $('.company-info').find('.responsive-table-cell-head:contains("Điện thoại:")');
       $('.company-info .responsive-table-cell-head').each(function() {
-        detail[$(this).text().trim().replace(':', '')] = $(this).next().text().trim()
+        let title = $(this).text().trim().replace(':', '');
+        detail[title] = $(this).next().text().trim();
+        if(sdt.length === 0 && title == 'Địa chỉ') {
+          detail['Điện thoại'] = 'Không có dữ liệu';
+        }
       })
-      console.log(detail);
+      if(!detail.hasOwnProperty('Điện thoại')) {
+
+      }
       let data = [];
       data.push(detail);
       csvWriter.writeRecords(data).then(() => {
         console.log('...Done');
       });
     }
-    
+    console.log(page);
     page += 1;
   }
 })();
