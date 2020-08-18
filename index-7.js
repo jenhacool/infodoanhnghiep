@@ -52,9 +52,9 @@ function sendRequest(url) {
 }
 
 (async () => {
-  let page = 12001;
+  let page = 6001;
 
-  while(page <= 14000) {
+  while(page <= 7000) {
     let url = `https://infodoanhnghiep.com/Ha-Noi/trang-${page}/`;
     let body = await sendRequest(url);
     let $ = cheerio.load(body);

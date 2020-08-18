@@ -5,7 +5,7 @@ const request = require('request');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
 const csvWriter = createCsvWriter({
-  path: 'data-5.csv',
+  path: 'data-13.csv',
   header: [
     {id: 'Tên doanh nghiệp', title: 'Tên doanh nghiệp'},
     {id: 'Tên giao dịch', title: 'Tên giao dịch'},
@@ -52,9 +52,9 @@ function sendRequest(url) {
 }
 
 (async () => {
-  let page = 4001;
+  let page = 12001;
 
-  while(page <= 5000) {
+  while(page <= 13000) {
     let url = `https://infodoanhnghiep.com/Ha-Noi/trang-${page}/`;
     let body = await sendRequest(url);
     let $ = cheerio.load(body);

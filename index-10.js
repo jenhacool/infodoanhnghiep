@@ -5,7 +5,7 @@ const request = require('request');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
 const csvWriter = createCsvWriter({
-  path: 'data-5.csv',
+  path: 'data-10.csv',
   header: [
     {id: 'Tên doanh nghiệp', title: 'Tên doanh nghiệp'},
     {id: 'Tên giao dịch', title: 'Tên giao dịch'},
@@ -52,7 +52,7 @@ function sendRequest(url) {
 }
 
 (async () => {
-  let page = 8001;
+  let page = 9001;
 
   while(page <= 10000) {
     let url = `https://infodoanhnghiep.com/Ha-Noi/trang-${page}/`;
