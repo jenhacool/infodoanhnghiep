@@ -1,11 +1,13 @@
-const cheerio = require('cheerio');
+var fs = require('fs');
 
-const request = require('request');
+var urlList = fs.readFileSync('links.txt').toString().split('\n');
 
-const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+var Crawler = require('crawler');
 
-const csvWriter = createCsvWriter({
-  path: 'data-5.csv',
+var createCsvWriter = require('csv-writer').createObjectCsvWriter;
+
+var csvWriter = createCsvWriter({
+  path: 'data.csv',
   header: [
     {id: 'Tên doanh nghiệp', title: 'Tên doanh nghiệp'},
     {id: 'Tên giao dịch', title: 'Tên giao dịch'},
@@ -27,45 +29,15 @@ const csvWriter = createCsvWriter({
   ]
 });
 
-function sendRequest(url) {
-  return new Promise(function(resolve, reject) {
-    request(
-      {
-        gzip: true,
-        headers: {
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-          'Accept-Encoding': 'gzip, deflate',
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36',
-        },
-        url: url,
-        method: 'GET'
-      },
-      function(err, res, body) {
-        if(!err && res.statusCode === 200) {
-          resolve(body)
-        } else {
-          reject(err)
-        }
-      }
-    )
-  });
-}
-
-(async () => {
-  let page = 4001;
-
-  while(page <= 5000) {
-    let url = `https://infodoanhnghiep.com/Ha-Noi/trang-${page}/`;
-    let body = await sendRequest(url);
-    let $ = cheerio.load(body);
-    let detailUrls = [];
-    $('.list-company .company-item').each(function() {
-      detailUrls.push($(this).find('h3.company-name a').attr('href'));
-    });
-    for(let detailUrl of detailUrls) {
+var c = new Crawler({
+  maxConnections: 100,
+  rateLimit: 1,
+  callback: function(error, res, done) {
+    if(error){
+      console.log(error);
+    } else{
+      var $ = res.$;
       let detail = {};
-      let body = await sendRequest(`https:${detailUrl}`);
-      let $ = cheerio.load(body);
       let sdt = $('.company-info').find('.responsive-table-cell-head:contains("Điện thoại:")');
       $('.company-info .responsive-table-cell-head').each(function() {
         let title = $(this).text().trim().replace(':', '');
@@ -79,9 +51,16 @@ function sendRequest(url) {
       }
       let data = [];
       data.push(detail);
-      await csvWriter.writeRecords(data);
+      if(detail['Tên doanh nghiệp']) {
+        csvWriter.writeRecords(data).then(function() {
+          // console.log(detail['Tên doanh nghiệp']);
+        });
+      } else {
+        console.log(res.request.uri.href);
+      }
     }
-    console.log(page);
-    page += 1;
+    done();
   }
-})();
+});
+
+c.queue(urlList);

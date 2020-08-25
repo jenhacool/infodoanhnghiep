@@ -1,7 +1,6 @@
 {
   "dependencies": {
-    "cheerio": "^1.0.0-rc.3",
-    "csv-writer": "^1.6.0",
-    "request": "^2.88.2"
+    "crawler": "^1.2.2",
+    "csv-writer": "^1.6.0"
   }
 }
